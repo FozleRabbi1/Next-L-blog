@@ -15,6 +15,7 @@ app.use(cors({
 app.use(express.json());
 
 app.all('/api/auth/*splat', toNodeHandler(auth));
+
 app.use("/posts", postRouter)
 
 export default app;

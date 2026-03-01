@@ -14,6 +14,20 @@ const createPost = async (req: Request, res: Response) => {
     }
 }
 
+const getAllPosts = async (req: Request, res: Response) => {
+    try {
+        const searchQuery = req.query.search as string | undefined;
+        const result = await postService.getAllPostFromDB(searchQuery);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json({
+            message: "post not retrived",
+            error: error instanceof Error ? error.message : "Unknown error"
+        })
+    }
+}
+
 export const postController = {
-    createPost
+    createPost,
+    getAllPosts
 }
