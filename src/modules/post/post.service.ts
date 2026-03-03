@@ -1,5 +1,6 @@
-import { Post, Prisma } from "../../../generated/prisma/client"
+import { Post } from "../../../generated/prisma/client"
 import { prisma } from "../../lib/prisma"
+import { postSearchQuery } from "./post.queryParams"
 
 const createPostIntoDB = async (data: Omit<Post, "id" | "createdAt" | "updatedAt">) => {
     const result = await prisma.post.create({
@@ -8,51 +9,19 @@ const createPostIntoDB = async (data: Omit<Post, "id" | "createdAt" | "updatedAt
     return result
 }
 
-// const getAppPostFromDB = async (searchQuery?: string) => {
 
-//     const result = await prisma.post.findMany({
-//         where: searchQuery ? {
-//             OR: [{ title: { contains: searchQuery, mode: "insensitive" } }]
-//         } : undefined
-//     });
-//     return result;
-// }
-
-const getAllPostFromDB = async (searchQuery?: string) => {
-    const whereClause: Prisma.PostWhereInput = searchQuery
-        ? {
-            OR: [
-                {
-                    title: {
-                        contains: searchQuery,
-                        mode: "insensitive" as Prisma.QueryMode,
-                    },
-                },
-                {
-                    content: {
-                        contains: searchQuery,
-                        mode: "insensitive" as Prisma.QueryMode,
-                    },
-                },
-                {
-                    tags: {
-                        has: searchQuery
-                    }
-                }
-            ],
-        }
-        : {};
+const getAllPostFromDB = async (searchQuery?: string, tags?: string[], isFeatured?: string) => {
 
     const result = await prisma.post.findMany({
-        where: whereClause,
+        where: postSearchQuery(searchQuery, tags, isFeatured),
         include: {
             author: {
                 select: {
                     id: true,
                     name: true,
                     email: true,
-                    role : true,
-                    image : true
+                    role: true,
+                    image: true
                 }
             }
         }
@@ -60,7 +29,6 @@ const getAllPostFromDB = async (searchQuery?: string) => {
 
     return result;
 };
-
 
 export const postService = {
     createPostIntoDB,
