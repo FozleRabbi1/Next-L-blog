@@ -1,4 +1,4 @@
-import { Post } from "../../../generated/prisma/client"
+import { Post, PostStatus } from "../../../generated/prisma/client"
 import { prisma } from "../../lib/prisma"
 import { postSearchQuery } from "./post.queryParams"
 
@@ -10,10 +10,10 @@ const createPostIntoDB = async (data: Omit<Post, "id" | "createdAt" | "updatedAt
 }
 
 
-const getAllPostFromDB = async (searchQuery?: string, tags?: string[], isFeatured?: string) => {
+const getAllPostFromDB = async (searchQuery?: string, tags?: string[], isFeatured?: string, status? : PostStatus | undefined, authorId? : string | undefined) => {
 
     const result = await prisma.post.findMany({
-        where: postSearchQuery(searchQuery, tags, isFeatured),
+        where: postSearchQuery(searchQuery, tags, isFeatured, status, authorId),
         include: {
             author: {
                 select: {
