@@ -36,6 +36,7 @@ model Comment {
   id       String @id @default(uuid())
   content  String @db.Text
   authorId String
+  author   User   @relation(fields: [authorId], references: [id])
 
   postId String
   post   Post   @relation(fields: [postId], references: [id])
@@ -74,10 +75,11 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  role   String? @default("USER")
-  phone  String?
-  status String? @default("ACTIVE")
-  posts  Post[]
+  role     String?   @default("USER")
+  phone    String?
+  status   String?   @default("ACTIVE")
+  posts    Post[]
+  comments Comment[]
 
   @@unique([email])
   @@map("user")

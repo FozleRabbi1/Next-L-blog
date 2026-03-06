@@ -34,13 +34,41 @@ const getAllPostFromDB = async (page: number, limit: number, skip: number, searc
             [sortBy]: orderBy   // sortby holo field name, orderBy holo sorting order (asc or desc)
         } : { createdAt: "desc" }
     });
+    const totalData = await prisma.post.count({ where: postSearchQuery(searchQuery, tags, isFeatured, status, authorId), })
 
-    return result;
+    const metadata = {
+        totalData,
+        currentPage: page,
+        currentData: limit,
+        totalPage: Math.ceil(totalData / limit)
+    }
+
+    return { metadata, result };
 };
+
+const getPostByIdFromDB = async (id: string) => {
+    const result = await prisma.post.findUnique({
+        where: { id },
+        include: {
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    role: true,
+                    image: true
+                }
+            }
+        }
+    })
+    return result
+}
+
 
 export const postService = {
     createPostIntoDB,
-    getAllPostFromDB
+    getAllPostFromDB,
+    getPostByIdFromDB
 }
 
 
