@@ -10,13 +10,9 @@ const createPostIntoDB = async (data: Omit<Post, "id" | "createdAt" | "updatedAt
 }
 
 
-const getAllPostFromDB = async ( skip: number, take: number, searchQuery?: string, tags?: string[], isFeatured?: string, status?: PostStatus | undefined, authorId?: string | undefined) => {
-
-    // const getAllPostFromDB = async (skip: number, take: number, searchQuery?: string, tags?: string[], isFeatured?: string, status?: PostStatus | undefined, authorId?: string | undefined) => {
+const getAllPostFromDB = async (page: number, limit: number, skip: number, searchQuery?: string, tags?: string[], isFeatured?: string, status?: PostStatus | undefined, authorId?: string | undefined, sortBy?: string, orderBy?: string) => {
 
     const result = await prisma.post.findMany({
-        skip,
-        take,
         where: postSearchQuery(searchQuery, tags, isFeatured, status, authorId),
         include: {
             author: {
@@ -28,7 +24,15 @@ const getAllPostFromDB = async ( skip: number, take: number, searchQuery?: strin
                     image: true
                 }
             }
-        }
+        },
+        // orderBy: {
+        //     createdAt: "desc"
+        // }
+        skip: skip,
+        take: limit,
+        orderBy: sortBy && orderBy ? {   // dynamic sorting 
+            [sortBy]: orderBy   // sortby holo field name, orderBy holo sorting order (asc or desc)
+        } : { createdAt: "desc" }
     });
 
     return result;
