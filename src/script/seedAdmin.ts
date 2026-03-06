@@ -39,9 +39,6 @@ async function seedAdmin() {
                 }
 
             })
-
-            console.log(updateAdmin);
-
         }
 
     } catch (error) {

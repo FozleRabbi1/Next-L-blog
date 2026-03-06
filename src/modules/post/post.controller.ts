@@ -22,8 +22,11 @@ const getAllPosts = async (req: Request, res: Response) => {
         const tags = req.query.tags ? (req.query.tags as string).split(",") : [];
         const status = req.query.status as PostStatus | undefined;
         const authorId = req.query.authorId as string | undefined;
+        const skip = req.query.skip ? parseInt(req.query.skip as string) | 0 : 0;
+        const take = req.query.take ? parseInt(req.query.take as string) | 2 : 2;
 
-        const result = await postService.getAllPostFromDB(searchQuery, tags, isFeatured, status, authorId);
+
+        const result = await postService.getAllPostFromDB(skip, take, searchQuery, tags, isFeatured, status, authorId);
         res.status(200).json(result)
     } catch (error) {
         res.status(500).json({

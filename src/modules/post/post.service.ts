@@ -10,9 +10,13 @@ const createPostIntoDB = async (data: Omit<Post, "id" | "createdAt" | "updatedAt
 }
 
 
-const getAllPostFromDB = async (searchQuery?: string, tags?: string[], isFeatured?: string, status? : PostStatus | undefined, authorId? : string | undefined) => {
+const getAllPostFromDB = async ( skip: number, take: number, searchQuery?: string, tags?: string[], isFeatured?: string, status?: PostStatus | undefined, authorId?: string | undefined) => {
+
+    // const getAllPostFromDB = async (skip: number, take: number, searchQuery?: string, tags?: string[], isFeatured?: string, status?: PostStatus | undefined, authorId?: string | undefined) => {
 
     const result = await prisma.post.findMany({
+        skip,
+        take,
         where: postSearchQuery(searchQuery, tags, isFeatured, status, authorId),
         include: {
             author: {
