@@ -46,22 +46,63 @@ const getAllPostFromDB = async (page: number, limit: number, skip: number, searc
     return { metadata, result };
 };
 
+// =========== normal away , single qury ===============
+// const getPostByIdFromDB = async (id: string) => {
+//     console.time("getPost")
+
+//     const result = await prisma.post.update({
+//         where: { id },
+//         data: {
+//             views: {
+//                 increment: 1
+//             }
+//         },
+//         include: {
+//             author: {
+//                 select: {
+//                     id: true,
+//                     name: true,
+//                     email: true,
+//                     role: true,
+//                     image: true
+//                 }
+//             }
+//         }
+//     })
+
+//     console.timeEnd("getPost")
+//     return result
+// }
+
+// ================= two query way with transaction rollback for better performance ===========
 const getPostByIdFromDB = async (id: string) => {
-    const result = await prisma.post.findUnique({
-        where: { id },
-        include: {
-            author: {
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    role: true,
-                    image: true
+    return await prisma.$transaction(async (jekononam) => {
+        
+        await jekononam.post.update({
+            where: { id },
+            data: {
+                views: {
+                    increment: 1
                 }
             }
-        }
+        })
+
+        const result2 = await jekononam.post.findUnique({
+            where: { id },
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        role: true,
+                        image: true
+                    }
+                }
+            }
+        })
+        return result2
     })
-    return result
 }
 
 
