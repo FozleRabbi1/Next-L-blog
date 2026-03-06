@@ -24,11 +24,6 @@ const getAllPosts = async (req: Request, res: Response) => {
         const status = req.query.status as PostStatus | undefined;
         const authorId = req.query.authorId as string | undefined;
 
-        // const page = req.query.page ? parseInt(req.query.page as string) : 0;
-        // const limit = req.query.limit ? parseInt(req.query.limit as string) : 5;
-        // const sortBy = req.query.sortBy as string | undefined;  // field name 
-        // const orderBy = req.query.orderBy as string | undefined; // asc or desc  ( order name )
-
         const { page, limit, skip, sortBy, orderBy } = paginationHelper(req.query)
 
         const result = await postService.getAllPostFromDB(page, limit, skip, searchQuery, tags, isFeatured, status, authorId, sortBy, orderBy);
