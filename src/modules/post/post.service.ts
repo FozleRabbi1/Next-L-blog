@@ -1,4 +1,4 @@
-import { Post, PostStatus } from "../../../generated/prisma/client"
+import { CommentStatus, Post, PostStatus } from "../../../generated/prisma/client"
 import { prisma } from "../../lib/prisma"
 import { postSearchQuery } from "./post.queryParams"
 
@@ -23,6 +23,9 @@ const getAllPostFromDB = async (page: number, limit: number, skip: number, searc
                     role: true,
                     image: true
                 }
+            },
+            _count: {
+                select: { comments: true }
             }
         },
         // orderBy: {
@@ -77,7 +80,7 @@ const getAllPostFromDB = async (page: number, limit: number, skip: number, searc
 // ================= two query way with transaction rollback for better performance ===========
 const getPostByIdFromDB = async (id: string) => {
     return await prisma.$transaction(async (jekononam) => {
-        
+
         await jekononam.post.update({
             where: { id },
             data: {
@@ -98,6 +101,39 @@ const getPostByIdFromDB = async (id: string) => {
                         role: true,
                         image: true
                     }
+                },
+                comments: {
+                    where: {
+                        parentId: null,
+                        status: CommentStatus.APPROVED
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    },
+                    include: {
+                        replies: {
+                            where: {
+                                status: CommentStatus.APPROVED
+                            },
+                            include: {
+                                replies: {
+                                    where: {
+                                        status: CommentStatus.APPROVED
+                                    },
+                                    include: {
+                                        replies: {
+                                            where: {
+                                                status: CommentStatus.APPROVED
+                                            },
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _count: {
+                    select: { comments: true }
                 }
             }
         })

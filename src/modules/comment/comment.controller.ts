@@ -14,7 +14,33 @@ const createComment = async (req: Request, res: Response) => {
     }
 }
 
+const getCommentById = async (req: Request, res: Response) => {
+    try {
+        const result = await commentService.getSingleCommentById(req.params.commentId as string)
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json({
+            message: "somthig went wrong",
+            error: error instanceof Error ? error.message : "Unknown error"
+        })
+    }
+}
+
+const getCommentsByAuthorId = async (req: Request, res: Response) => {
+    try {
+        const result = await commentService.getCommentsByAuthorId(req.params.authorId as string)
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json({
+            message: "somthig went wrong",
+            error: error instanceof Error ? error.message : "Unknown error"
+        })
+    }
+}
+
 export const commentController = {
-    createComment
+    createComment,
+    getCommentById,
+    getCommentsByAuthorId
 }
 
