@@ -44,7 +44,23 @@ const deleteComment = async (req: Request, res: Response) => {
         const result = await commentService.deleteComment(req.params.commentId as string, userId as string)
         res.status(200).json({
             result,
-            message : "comment delete successfully"
+            message: "comment delete successfully"
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: "somthig went wrong",
+            error: error instanceof Error ? error.message : "Unknown error"
+        })
+    }
+}
+
+const updateComment = async (req: Request, res: Response) => {
+    try {
+        req.body.authorId = req.user?.id;
+        const result = await commentService.updateCommentIntoDB(req.params.commentId as string, req.body)
+        res.status(200).json({
+            result,
+            message: "comment update successfully"
         })
     } catch (error) {
         res.status(500).json({
@@ -58,6 +74,7 @@ export const commentController = {
     createComment,
     getCommentById,
     getCommentsByAuthorId,
-    deleteComment
+    deleteComment,
+    updateComment
 }
 

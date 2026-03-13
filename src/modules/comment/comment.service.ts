@@ -49,13 +49,13 @@ const deleteComment = async (commentId: string, userId: string) => {
     // })
 
     const comment = await prisma.comment.findFirst({
-        where : {
-            id : commentId,
-            authorId : userId
+        where: {
+            id: commentId,
+            authorId: userId
         }
     })
 
-    if(!comment){
+    if (!comment) {
         throw new Error("comment not found")
     }
 
@@ -66,9 +66,35 @@ const deleteComment = async (commentId: string, userId: string) => {
 }
 
 
+// const updateCommentIntoDB = async (commentId: string, paylod: Partial<IComment>) => {
+//     return await prisma.comment.update({
+//         where: { id: commentId },
+//         data: paylod
+//     })
+// }
+
+const updateCommentIntoDB = async (
+    commentId: string,
+    payload: Partial<IComment>
+) => {
+    const result = await prisma.comment.update({
+        where: { id: commentId },
+        data: payload
+    });
+
+    return result;
+};
+
+
 export const commentService = {
     createComment,
     getSingleCommentById,
     getCommentsByAuthorId,
-    deleteComment
+    deleteComment,
+    updateCommentIntoDB
 }
+
+
+
+
+
