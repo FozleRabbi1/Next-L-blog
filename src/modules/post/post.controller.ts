@@ -50,8 +50,28 @@ const getPostById = async (req: Request, res: Response) => {
     }
 }
 
+const getMyPost = async (req: Request, res: Response) => {
+    console.log("hit");
+    
+    try {
+        const authorId = req.user?.id;
+        console.log(authorId);
+        
+        const result = await postService.getMyPostFromDB(authorId as string)
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error);
+        
+        res.status(500).json({
+            message: "my post not retrived",
+            error: error instanceof Error ? error.message : "Unknown error"
+        })
+    }
+}
+
 export const postController = {
     createPost,
     getAllPosts,
-    getPostById
+    getPostById,
+    getMyPost
 }

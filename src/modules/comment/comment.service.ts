@@ -1,3 +1,4 @@
+import { CommentStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { IComment } from "./comment.types";
 
@@ -85,13 +86,22 @@ const updateCommentIntoDB = async (
     return result;
 };
 
+const moderateComment = async (commentId: string, payload: CommentStatus) => {
+    console.log(commentId, payload);
+    return await prisma.comment.update({
+        where: { id: commentId },
+        data: { status: payload }
+    })
+
+}
 
 export const commentService = {
     createComment,
     getSingleCommentById,
     getCommentsByAuthorId,
     deleteComment,
-    updateCommentIntoDB
+    updateCommentIntoDB,
+    moderateComment
 }
 
 

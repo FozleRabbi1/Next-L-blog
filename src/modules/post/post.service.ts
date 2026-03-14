@@ -78,6 +78,7 @@ const getAllPostFromDB = async (page: number, limit: number, skip: number, searc
 // }
 
 // ================= two query way with transaction rollback for better performance ===========
+
 const getPostByIdFromDB = async (id: string) => {
     return await prisma.$transaction(async (jekononam) => {
 
@@ -142,10 +143,53 @@ const getPostByIdFromDB = async (id: string) => {
 }
 
 
+const getMyPostFromDB = async (authorId: string) => {
+
+    await prisma.user.findUniqueOrThrow({
+        where: {
+            id: authorId,
+            status: "ACTIVE"
+        }
+    })
+
+    // if(userInfo.status !== "ACTIVE"){
+    //     throw new Error ("Unauthorize! Your are not a ACTIVE user")
+    // }
+
+
+    const result = await prisma.post.findMany({
+        where: { authorId },
+        include: {
+            comments: true,
+            _count: {
+                select: {
+                    comments: true
+                }
+            }
+        },
+        orderBy: {
+            createdAt: "desc"
+        }
+    })
+
+    // const totalPost = await prisma.post.count({
+    //     where: { authorId }
+    // })
+    const totalPost = await prisma.post.aggregate({
+        where: { authorId },
+        _count: { authorId: true }
+    })
+
+    return { totalPost, result }
+
+}
+
+
 export const postService = {
     createPostIntoDB,
     getAllPostFromDB,
-    getPostByIdFromDB
+    getPostByIdFromDB,
+    getMyPostFromDB
 }
 
 
