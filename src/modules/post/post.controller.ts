@@ -51,19 +51,26 @@ const getPostById = async (req: Request, res: Response) => {
 }
 
 const getMyPost = async (req: Request, res: Response) => {
-    console.log("hit");
-    
     try {
         const authorId = req.user?.id;
-        console.log(authorId);
-        
         const result = await postService.getMyPostFromDB(authorId as string)
         res.status(200).json(result)
     } catch (error) {
-        console.log(error);
-        
         res.status(500).json({
             message: "my post not retrived",
+            error: error instanceof Error ? error.message : "Unknown error"
+        })
+    }
+}
+
+const updateOwnePost = async (req: Request, res: Response) => {
+    try {
+        const authorId = req.user?.id;
+        const result = await postService.updateOwnePost(authorId as string, req.params.postId as string, req.body)
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json({
+            message: "post data field to update",
             error: error instanceof Error ? error.message : "Unknown error"
         })
     }
@@ -73,5 +80,6 @@ export const postController = {
     createPost,
     getAllPosts,
     getPostById,
-    getMyPost
+    getMyPost,
+    updateOwnePost
 }
