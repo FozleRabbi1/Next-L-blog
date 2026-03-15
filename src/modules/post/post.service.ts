@@ -184,9 +184,9 @@ const getMyPostFromDB = async (authorId: string) => {
 
 }
 
-const updateOwnePost = async (authorId: string, postId: string, payload: Partial<Post>) => {
-    const postData = await prisma.post.findFirstOrThrow({ where: { id : postId } })
-    if (authorId !== postData.authorId) {
+const updateOwnePost = async (authorId: string, postId: string, payload: Partial<Post>, isAdmin: boolean) => {
+    const postData = await prisma.post.findFirstOrThrow({ where: { id: postId } })
+    if (!isAdmin && (authorId !== postData.authorId)) {
         throw new Error("Unauthorize! you are not abale to update this data")
     }
 
