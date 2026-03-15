@@ -190,11 +190,60 @@ const updateOwnePost = async (authorId: string, postId: string, payload: Partial
         throw new Error("Unauthorize! you are not abale to update this data")
     }
 
+    if (!isAdmin) {
+        delete payload.isFeatured
+    }
+
     return await prisma.post.update({
         where: { id: postId },
         data: payload
     })
 }
+
+const deletePost = async (authorId: string, postId: string, isAdmin: boolean) => {
+    const postData = await prisma.post.findFirstOrThrow({ where: { id: postId } })
+    if (!isAdmin && (authorId !== postData.authorId)) {
+        throw new Error("Unauthorize! you are not abale to delete this data")
+    }
+    return await prisma.post.delete({
+        where: { id: postId }
+    })
+}
+
+// const getStatisticsByAdmin = async () =>{
+//     const postStatistics = await prisma.post.aggregate({
+//         _count : {id : true},
+//         _count : {comment : true}
+//     })
+
+//     return { totalPost : postStatistics }
+
+// }
+
+const getStatisticsByAdmin = async () => {
+    const [totalPosts, totalComments, published, archived, draft, totalViews] = await Promise.all([
+        prisma.post.count(),
+        prisma.comment.count(),
+        prisma.post.count({
+            where: { status: PostStatus.PUBLISHED }
+        }),
+        prisma.post.count({
+            where: { status: PostStatus.ARCHIVED }
+        }),
+        prisma.post.count({
+            where: { status: PostStatus.DRAFT }
+        }),
+        prisma.post.aggregate({
+            _sum: { views: true }
+        })
+    ]);
+
+    return {
+        totalPosts,
+        totalComments,
+        published, archived, draft, totalViews : totalViews._sum.views
+    };
+};
 
 
 export const postService = {
@@ -202,7 +251,9 @@ export const postService = {
     getAllPostFromDB,
     getPostByIdFromDB,
     getMyPostFromDB,
-    updateOwnePost
+    updateOwnePost,
+    deletePost,
+    getStatisticsByAdmin
 }
 
 

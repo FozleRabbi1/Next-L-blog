@@ -78,10 +78,38 @@ const updateOwnePost = async (req: Request, res: Response) => {
     }
 }
 
+const deletePost = async (req: Request, res: Response) => {
+    try {
+        const authorId = req.user?.id;
+        const isAdmin = req.user?.role === UserRole.ADMIN;
+        const result = await postService.deletePost(authorId as string, req.params.postId as string, isAdmin)
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json({
+            message: "post data field to delete",
+            error: error instanceof Error ? error.message : "Unknown error"
+        })
+    }
+}
+
+const getStatisticsByAdmin = async (req: Request, res: Response) => {
+    try {
+        const result = await postService.getStatisticsByAdmin()
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json({
+            message: "failed to get statistics data",
+            error: error instanceof Error ? error.message : "Unknown error"
+        })
+    }
+}
+
 export const postController = {
     createPost,
     getAllPosts,
     getPostById,
     getMyPost,
-    updateOwnePost
+    updateOwnePost,
+    deletePost,
+    getStatisticsByAdmin
 }
