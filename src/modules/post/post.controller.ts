@@ -1,19 +1,16 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { postService } from "./post.service";
 import { PostStatus } from "../../../generated/prisma/enums";
 import { paginationHelper } from "../../helpers/paginationHelper";
 import { UserRole } from "../../middlewares/auth";
 
-const createPost = async (req: Request, res: Response) => {
+const createPost = async (req: Request, res: Response, next: NextFunction) => {
     const postData = { ...req.body, authorId: req.user?.id as string }
     try {
         const result = await postService.createPostIntoDB(postData)
         res.status(201).json(result)
     } catch (error) {
-        res.status(500).json({
-            message: "post not created",
-            error: error instanceof Error ? error.message : "Unknown error"
-        })
+        next(error)
     }
 }
 
@@ -64,17 +61,14 @@ const getMyPost = async (req: Request, res: Response) => {
     }
 }
 
-const updateOwnePost = async (req: Request, res: Response) => {
+const updateOwnePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const authorId = req.user?.id;
         const isAdmin = req.user?.role === UserRole.ADMIN;
         const result = await postService.updateOwnePost(authorId as string, req.params.postId as string, req.body, isAdmin)
         res.status(200).json(result)
     } catch (error) {
-        res.status(500).json({
-            message: "post data field to update",
-            error: error instanceof Error ? error.message : "Unknown error"
-        })
+        next(error)
     }
 }
 
